@@ -4,6 +4,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from django.db import transaction
 from reconciliation.models import BankTransaction
+from .matcher import match_credit_transaction
 
 
 class MissingColumnError(Exception):
@@ -56,6 +57,8 @@ def parse_and_validate_row(row_dict, line_number):
 
 
 def import_bank_statement_csv(file_obj, organization, matcher_fn=None):
+    if matcher_fn is None:
+        matcher_fn = match_credit_transaction
     if hasattr(file_obj, 'read'):
         content = file_obj.read()
         if isinstance(content, bytes):
